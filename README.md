@@ -24,3 +24,4 @@ I pulled the data using the API method.
 The database that I used has data of three cities from Turkey; Ankara, Istanbul and Izmir. 
 However, it is possible to reach cities in different parts of the world.
 
+![screenshot](https://user-images.githubusercontent.com/75947247/108257641-27075580-7170-11eb-8935-9c53d04f3d1d.jpeg)
