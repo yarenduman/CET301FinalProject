@@ -1,16 +1,26 @@
-# weather_app
+# WeatherApp
 
-A new Flutter application.
+# The goal of the project
 
-## Getting Started
+Weather application is one of the most useful applications in our daily life.
+Although there are many weather applications we use, the simplest and most understandable ones are generally preferred.
+So, I worked on an application in this direction as a final project.
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+## UI of the application
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+This weather application offers users a simple and understandable interface.
+The application starts with the weather forecast of Izmir. 
+There is a blue solid background to increase readability. 
+There is a search button at the top. 
+In the middle,there are weather state icon, current temperature, weather state as text, and city's name.
+At the bottom, there is a scroll view showing the 7-day weather forecast. A weekly weather forecast is available by scrolling down.
+The rows in this section include date, weather state icon, current temperature, weather state as text and predictability, respectively.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Users can access instant and weekly weather forecasts of other cities by using the search button.
+Users will see an error text when searching for a city name that is misspelled or not included in the data.
+
+I pulled the data using the API method. 
+The database that I used has data of three cities from Turkey; Ankara, Istanbul and Izmir. 
+However, it is possible to reach cities in different parts of the world.
+

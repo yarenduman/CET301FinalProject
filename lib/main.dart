@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 
 void main() => runApp(WeatherApp());
- 
+
 class WeatherApp extends StatefulWidget {
   @override
   _WeatherAppState createState() => _WeatherAppState();
@@ -12,14 +12,15 @@ class WeatherApp extends StatefulWidget {
 
 class _WeatherAppState extends State<WeatherApp> {
   int temperature;
-  var minTemperatureForecast = new List(7);
-  var maxTemperatureForecast = new List(7);
-  String location = 'Istanbul';
-  int woeid = 2344116;
-  String weatherName = 'Clear';
+  var temperatureForecast = new List(7);
+  String location = 'Izmir';
+  int woeid = 2344117;
+  String weatherName;
   var weatherNameForecast = new List(7);
   String weatherIcon;
   var weatherIconForecast = new List(7);
+  int predictability;
+  var predictabilityForecast = new List(7);
   String errorMessage = '';
 
   String searchApiUrl =
@@ -60,6 +61,7 @@ class _WeatherAppState extends State<WeatherApp> {
       weatherName = data["weather_state_name"];
       weatherIcon =
           data["weather_state_name"].replaceAll(' ', '').toLowerCase();
+      predictability = data["predictability"];
     });
   }
 
@@ -76,11 +78,11 @@ class _WeatherAppState extends State<WeatherApp> {
       var data = result[0];
 
       setState(() {
-        minTemperatureForecast[i] = data["min_temp"].round();
-        maxTemperatureForecast[i] = data["max_temp"].round();
+        temperatureForecast[i] = data["the_temp"].round();
         weatherIconForecast[i] =
             data["weather_state_name"].replaceAll(' ', '').toLowerCase();
         weatherNameForecast[i] = data["weather_state_name"];
+        predictabilityForecast[i] = data["predictability"];
       });
     }
   }
@@ -113,6 +115,47 @@ class _WeatherAppState extends State<WeatherApp> {
                   children: <Widget>[
                     Column(
                       children: <Widget>[
+                        Container(
+                          width: 380,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(205, 212, 228, 0.2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: TextField(
+                            onSubmitted: (String input) {
+                              onTextFieldSubmitted(input);
+                            },
+                            style: TextStyle(color: Colors.white, fontSize: 25),
+                            decoration: InputDecoration(
+                              hintStyle: TextStyle(
+                                  color: Colors.white, fontSize: 20.0),
+                              hintText: 'Search another location',
+                              prefixIcon:
+                                  Icon(Icons.search, color: Colors.white),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      width: 2.0, color: Colors.white),
+                                  borderRadius: BorderRadius.circular(10.0)),
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    width: 2.0,
+                                    color: Color.fromRGBO(205, 212, 228, 0.2),
+                                  ),
+                                  borderRadius: BorderRadius.circular(10.0)),
+                            ),
+                          ),
+                        ),
+                        Text(
+                          errorMessage,
+                          textAlign: TextAlign.center,
+                          style:
+                              TextStyle(color: Colors.redAccent, fontSize: 20),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: <Widget>[
                         Center(
                           child: Image(
                             image: AssetImage('images/$weatherIcon.png'),
@@ -141,59 +184,22 @@ class _WeatherAppState extends State<WeatherApp> {
                         style: TextStyle(color: Colors.white, fontSize: 60.0),
                       ),
                     ),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: <Widget>[
-                          for (var i = 0; i < 7; i++)
-                            forecastElement(
-                                i + 1,
-                                weatherIconForecast[i],
-                                weatherNameForecast[i],
-                                minTemperatureForecast[i],
-                                maxTemperatureForecast[i]),
-                        ],
+                    Container(
+                      height: 250,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Column(
+                          children: <Widget>[
+                            for (var i = 0; i < 7; i++)
+                              forecastElement(
+                                  i + 1,
+                                  weatherIconForecast[i],
+                                  weatherNameForecast[i],
+                                  temperatureForecast[i],
+                                  predictabilityForecast[i]),
+                          ],
+                        ),
                       ),
-                    ),
-                    Column(
-                      children: <Widget>[
-                        Container(
-                          width: 300,
-                          decoration: BoxDecoration(
-                            color: Color.fromRGBO(205, 212, 228, 0.2),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          child: TextField(
-                            onSubmitted: (String input) {
-                              onTextFieldSubmitted(input);
-                            },
-                            style: TextStyle(color: Colors.white, fontSize: 25),
-                            decoration: InputDecoration(
-                              hintStyle: TextStyle(
-                                  color: Colors.white, fontSize: 20.0),
-                              hintText: 'Search another location',
-                              prefixIcon:
-                                  Icon(Icons.search, color: Colors.white),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      width: 2.0, color: Colors.white),
-                                  borderRadius: BorderRadius.circular(25.0)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    width: 2.0,
-                                    color: Color.fromRGBO(205, 212, 228, 0.2),
-                                  ),
-                                  borderRadius: BorderRadius.circular(25.0)),
-                            ),
-                          ),
-                        ),
-                        Text(
-                          errorMessage,
-                          textAlign: TextAlign.center,
-                          style:
-                              TextStyle(color: Colors.redAccent, fontSize: 20),
-                        ),
-                      ],
                     ),
                   ],
                 ),
@@ -204,46 +210,59 @@ class _WeatherAppState extends State<WeatherApp> {
 }
 
 Widget forecastElement(
-    daysFromNow, weatherIcon, weatherName, minTemperature, maxTemperature) {
+    daysFromNow, weatherIcon, weatherName, temperature, predictability) {
   var now = new DateTime.now();
   var oneDayFromNow = now.add(new Duration(days: daysFromNow));
   return Padding(
-    padding: const EdgeInsets.only(left: 16.0),
+    padding: const EdgeInsets.symmetric(vertical: 10.0),
     child: Container(
-      width: 150,
-      height: 220,
+      width: 380,
+      height: 60,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Color.fromRGBO(205, 212, 228, 0.2),
-
         borderRadius: BorderRadius.circular(10),
+
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+        padding: const EdgeInsets.all(8.0),
+
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text(
-              new DateFormat.E().format(oneDayFromNow),
-              style: TextStyle(color: Colors.white, fontSize: 28),
+            Expanded(
+              child: Text(
+                new DateFormat.E().format(oneDayFromNow) +
+                    '        ' +
+                    new DateFormat.MMMd().format(oneDayFromNow),
+                maxLines: 2,
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
+              ),
             ),
-            Text(
-              new DateFormat.MMMd().format(oneDayFromNow),
-              style: TextStyle(color: Colors.white, fontSize: 24),
+            Expanded(
+              child: Image(
+                image: AssetImage('images/$weatherIcon.png'),
+                width: 40,
+              ),
             ),
-            Image(
-              image: AssetImage('images/$weatherIcon.png'),
-              width: 50,
+            Expanded(
+              child: Text(
+                temperature.toString() + ' °C',
+                style: TextStyle(color: Colors.white, fontSize: 20.0),
+              ),
             ),
-            Text(
-              weatherName,
-              style: TextStyle(color: Colors.white, fontSize: 20.0),
+            Expanded(
+              child: Text(
+                weatherName,
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
+              ),
             ),
-            Text(
-              'High: ' + maxTemperature.toString() + ' °C',
-              style: TextStyle(color: Colors.white, fontSize: 16.0),
-            ),
-            Text(
-              'Low: ' + minTemperature.toString() + ' °C',
-              style: TextStyle(color: Colors.white, fontSize: 16.0),
+            Expanded(
+              child: Text(
+                predictability.toString() + '%',
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
+              ),
             ),
           ],
         ),
